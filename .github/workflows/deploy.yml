@@ -2,13 +2,13 @@ name: Deploy tldraw to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]  # 触发分支，按需修改
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  # 允许写入 gh-pages 分支
 
     steps:
       # 1. 检出代码
@@ -17,35 +17,20 @@ jobs:
 
       # 2. 设置 Node.js 环境
       - name: Setup Node.js
-        uses: actions/setup-node@v4  # 升级到 v4
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'yarn'
+          node-version: '20'  # tldraw 要求 Node 16+
 
-      # 3. 启用 Corepack 并安装正确 Yarn 版本
-      - name: Setup Yarn via Corepack
+      # 3. 安装依赖并构建
+      - name: Install and Build
         run: |
-          # 启用 Corepack 并安装 package.json 指定的 Yarn 版本
-          corepack enable
-          corepack prepare yarn@stable --activate
-          
-          # 验证 Yarn 版本
-          yarn --version
-        shell: bash
+          npm ci
+          npm run build
 
-      # 4. 安装依赖
-      - name: Install dependencies
-        run: yarn install --immutable
-        shell: bash
-
-      # 5. 构建项目
-      - name: Build project
-        run: yarn build
-        shell: bash
-
-      # 6. 部署到 GitHub Pages
+      # 4. 部署到 GitHub Pages
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
+          publish_dir: dist  # tldraw 默认构建目录
+          keep_files: false  # 清除旧文件
