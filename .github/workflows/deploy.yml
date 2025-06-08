@@ -1,0 +1,42 @@
+name: Deploy tldraw to GitHub Pages
+
+on:
+  push:
+    branches: [main]  # 触发分支
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许写入gh-pages分支
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 使用你提供的tldraw设置步骤
+      - name: Setup tldraw environment
+        uses: actions/setup-node@v3  # 保持与你提供的配置一致
+        with:
+          node-version: 20.11.0
+          cache: 'yarn'
+
+      # 3. 启用corepack和安装依赖
+      - name: Setup environment
+        run: |
+          npm i -g corepack
+          yarn install --immutable
+        shell: bash
+
+      # 4. 构建项目
+      - name: Build project
+        run: yarn build
+        shell: bash
+
+      # 5. 部署到GitHub Pages
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist  # tldraw默认构建目录

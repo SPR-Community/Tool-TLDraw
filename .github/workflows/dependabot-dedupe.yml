@@ -1,4 +1,4 @@
-name: Dedupe Dependabot PRs
+name: 消除依赖
 
 on:
   push:
@@ -15,27 +15,25 @@ defaults:
 
 jobs:
   dedupe:
-    name: Dedupe Dependabot PRs
+    name: 消除依赖
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: 签出
         uses: actions/checkout@v3
 
       - uses: ./.github/actions/setup
 
-      - name: Configure Git
+      - name: 认证Git账户
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Dedupe dependencies
+      - name: 消除依赖
         run: yarn dedupe
 
-      - name: Commit changes
+      - name: 提交并推送
         run: |
           git add .
           git commit -m 'Dedupe' || true
-
-      - name: Push changes
-        run: git push
+          git push
